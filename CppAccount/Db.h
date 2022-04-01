@@ -50,10 +50,12 @@ public:
 	std::unordered_map<std::string, User> GetUsers() const;
 
 	std::string ToString() const;
+	std::string GetJsonString();
 
 	void Update();
 private:
 	std::unordered_map<std::string, User> users_{};
 	std::ifstream in_{};
 	std::ofstream out_{};
+	std::string dbPath_ = "";
 };

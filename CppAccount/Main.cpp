@@ -5,11 +5,17 @@
 
 int main()
 {
-	auto db1 = Db("Database.txt");
-	auto user1 = User("noobmaster69", "6974");
+	auto db1 = Db("Database.json");
+	auto user1 = User("user1", "6974");
+	auto user2 = User("user2", "6974");
 	db1.AddUser(user1);
-	std::cout << db1.ToString() << "\n";
-	user1.SetName("sexmachine");
-	db1.EditUser(user1.GetId(), user1);
+	db1.AddUser(user2);
+	db1.Update();
 	std::cout << db1.ToString();
+	std::cout << db1.GetJsonString() << "\n";
+
+	db1.RemoveUser(user1.GetId());
+	db1.Update();
+	std::cout << db1.ToString();
+	std::cout << db1.GetJsonString() << "\n";
 }

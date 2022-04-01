@@ -1,5 +1,9 @@
 #include "Db.h"
 #include <sstream>
+#include <iostream>
+#include <nlohmann/json.hpp>
+
+using Json = nlohmann::json;
 
 User::User(std::string id, std::string pw)
 {
@@ -48,8 +52,9 @@ std::string User::ToString() const
 }
 Db::Db(std::string dbPath)
 {
-	in_ = std::ifstream(dbPath);
-	out_ = std::ofstream(dbPath);
+	dbPath_ = dbPath;
+	in_ = std::ifstream(dbPath_);
+	out_ = std::ofstream(dbPath_);
 }
 void Db::EditUser(std::string id, const User& user)
 {
@@ -78,18 +83,39 @@ std::unordered_map<std::string, User> Db::GetUsers() const
 std::string Db::ToString() const
 {
 	std::stringstream ss;
-
 	for (const auto& user : users_)
 	{
 		ss << user.second.ToString() << "\n";
 	}
 	return ss.str();
 }
+std::string Db::GetJsonString()
+{
+	Json read;
+	in_ >> read;
+	in_.close();
+
+	std::stringstream ss;
+	ss << std::setw(4) << read;
+
+	return ss.str();
+}
+// Need refactoring
 void Db::Update()
 {
-	char lines[512] = { 0, };
-	while (in_.getline(lines, sizeof(lines) / sizeof(char)))
+	out_.open(dbPath_, std::ofstream::out | std::ofstream::trunc);
+	Json db = Json::array();
+	for (const auto& user : users_)
 	{
-
+		Json object = {
+			{ user.second.GetId(), {
+				{ "password", user.second.GetPassword() },
+				{ "name", user.second.GetName() },
+				{ "description", user.second.GetDescription() }
+			}}
+		};
+		db.push_back(object);
 	}
+	out_ << std::setw(4) << db;
+	out_.close();
 }
