@@ -38,20 +38,28 @@ namespace std
 	};
 }
 
-class Db
+class DB
 {
 public:
-	Db(std::string dbPath);
+	DB(std::string dbPath);
 
+	// Edit a specific user with id.
 	void EditUser(std::string id, const User& user);
+	// Add an user.
 	void AddUser(const User& user);
+	// Remove a specific user with id.
 	void RemoveUser(std::string id);
+	// Get a specific user with id.
 	User GetUser(std::string id) const;
+	// Get users map.
 	std::unordered_map<std::string, User> GetUsers() const;
 
+	// Get users as string from DB class.
 	std::string ToString() const;
+	// Get users as json from local database file.
 	std::string GetJsonString();
 
+	// Sync database with local database file.
 	void Update();
 private:
 	std::unordered_map<std::string, User> users_{};

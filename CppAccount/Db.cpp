@@ -1,4 +1,4 @@
-#include "Db.h"
+#include "DB.h"
 #include <sstream>
 #include <iostream>
 #include <nlohmann/json.hpp>
@@ -50,37 +50,37 @@ std::string User::ToString() const
 	ss << "Id: " << id_ << " / Pw: " << password_ << " / Name: " << name_ << " / Description: " << description_;
 	return ss.str();
 }
-Db::Db(std::string dbPath)
+DB::DB(std::string dbPath)
 {
-	dbPath_ = dbPath;
+	dbPath_ = dbPath + ".json";
 	in_ = std::ifstream(dbPath_);
 	out_ = std::ofstream(dbPath_);
 }
-void Db::EditUser(std::string id, const User& user)
+void DB::EditUser(std::string id, const User& user)
 {
 	if (users_.find(id) == users_.end()) return;
 
 	users_[id].Set(user);
 }
-void Db::AddUser(const User& user)
+void DB::AddUser(const User& user)
 {
 	users_[user.GetId()] = user;
 }
-void Db::RemoveUser(std::string id)
+void DB::RemoveUser(std::string id)
 {
 	if (users_.find(id) == users_.end()) return;
 
 	users_.erase(id);
 }
-User Db::GetUser(std::string id) const
+User DB::GetUser(std::string id) const
 {
 	return users_.at(id);
 }
-std::unordered_map<std::string, User> Db::GetUsers() const
+std::unordered_map<std::string, User> DB::GetUsers() const
 {
 	return users_;
 }
-std::string Db::ToString() const
+std::string DB::ToString() const
 {
 	std::stringstream ss;
 	for (const auto& user : users_)
@@ -89,10 +89,13 @@ std::string Db::ToString() const
 	}
 	return ss.str();
 }
-std::string Db::GetJsonString()
+std::string DB::GetJsonString()
 {
+	in_.open(dbPath_, std::ifstream::in);
+
 	Json read;
 	in_ >> read;
+
 	in_.close();
 
 	std::stringstream ss;
@@ -100,11 +103,13 @@ std::string Db::GetJsonString()
 
 	return ss.str();
 }
-// Need refactoring
-void Db::Update()
+void DB::Update()
 {
 	out_.open(dbPath_, std::ofstream::out | std::ofstream::trunc);
-	Json db = Json::array();
+	out_.close();
+
+	out_.open(dbPath_);
+	Json DB = Json::array();
 	for (const auto& user : users_)
 	{
 		Json object = {
@@ -114,8 +119,8 @@ void Db::Update()
 				{ "description", user.second.GetDescription() }
 			}}
 		};
-		db.push_back(object);
+		DB.push_back(object);
 	}
-	out_ << std::setw(4) << db;
+	out_ << std::setw(4) << DB;
 	out_.close();
 }

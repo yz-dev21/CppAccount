@@ -1,11 +1,11 @@
-#include "Db.h"
+#include "DB.h"
 #include "Ui.h"
 
 #include <iostream>
 
 int main()
 {
-	auto db1 = Db("Database.json");
+	auto db1 = DB("Database");
 	auto user1 = User("user1", "6974");
 	auto user2 = User("user2", "6974");
 	db1.AddUser(user1);
