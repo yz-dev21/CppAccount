@@ -1,7 +1,6 @@
 #pragma once
 #include <unordered_map>
 #include <string>
-#include <fstream>
 
 class User
 {
@@ -57,13 +56,11 @@ public:
 	// Get users as string from DB class.
 	std::string ToString() const;
 	// Get users as json from local database file.
-	std::string GetJsonString();
+	std::string GetXMLString();
 
 	// Sync database with local database file.
-	void Update();
+	void Sync();
 private:
 	std::unordered_map<std::string, User> users_{};
-	std::ifstream in_{};
-	std::ofstream out_{};
 	std::string dbPath_ = "";
 };

@@ -1,9 +1,9 @@
 #include "DB.h"
-#include <sstream>
 #include <iostream>
-#include <nlohmann/json.hpp>
+#include <sstream>
+#include <tinyxml2.h>
 
-using Json = nlohmann::json;
+using namespace tinyxml2;
 
 User::User(std::string id, std::string pw)
 {
@@ -52,9 +52,25 @@ std::string User::ToString() const
 }
 DB::DB(std::string dbPath)
 {
-	dbPath_ = dbPath + ".json";
-	in_ = std::ifstream(dbPath_);
-	out_ = std::ofstream(dbPath_);
+	dbPath_ = dbPath + ".xml";
+
+	XMLDocument doc;
+	XMLError error = doc.LoadFile(dbPath_.c_str());
+	if (error)
+	{
+		std::cout << error << std::endl;
+		return;
+	}
+	XMLElement* root = doc.RootElement();
+	XMLElement* firstUser = root->FirstChildElement("User");
+	for (auto* ele = firstUser; ele != NULL; ele = ele->NextSiblingElement())
+	{
+		auto user = User(ele->Attribute("id"), ele->Attribute("password"));
+		user.SetName(ele->Attribute("name"));
+		user.SetDescription(ele->GetText());
+
+		users_[user.GetId()] = user;
+	}
 }
 void DB::EditUser(std::string id, const User& user)
 {
@@ -89,38 +105,26 @@ std::string DB::ToString() const
 	}
 	return ss.str();
 }
-std::string DB::GetJsonString()
+void DB::Sync()
 {
-	in_.open(dbPath_, std::ifstream::in);
+	XMLDocument doc;
+	XMLElement* root = doc.NewElement("Root");
+	doc.LinkEndChild(root);
 
-	Json read;
-	in_ >> read;
-
-	in_.close();
-
-	std::stringstream ss;
-	ss << std::setw(4) << read;
-
-	return ss.str();
-}
-void DB::Update()
-{
-	out_.open(dbPath_, std::ofstream::out | std::ofstream::trunc);
-	out_.close();
-
-	out_.open(dbPath_);
-	Json DB = Json::array();
 	for (const auto& user : users_)
 	{
-		Json object = {
-			{ user.second.GetId(), {
-				{ "password", user.second.GetPassword() },
-				{ "name", user.second.GetName() },
-				{ "description", user.second.GetDescription() }
-			}}
-		};
-		DB.push_back(object);
+		XMLElement* userElement = doc.NewElement("User");
+
+		userElement->SetAttribute("id", user.second.GetId().c_str());
+		userElement->SetAttribute("password", user.second.GetPassword().c_str());
+		userElement->SetAttribute("name", user.second.GetName().c_str());
+		userElement->SetText(user.second.GetDescription().c_str());
+
+		root->LinkEndChild(userElement);
 	}
-	out_ << std::setw(4) << DB;
-	out_.close();
+	XMLError error = doc.SaveFile(dbPath_.c_str());
+	if (error)
+	{
+		std::cout << error << std::endl;
+	}
 }

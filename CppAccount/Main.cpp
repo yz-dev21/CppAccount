@@ -6,16 +6,18 @@
 int main()
 {
 	auto db1 = DB("Database");
-	auto user1 = User("user1", "6974");
-	auto user2 = User("user2", "6974");
-	db1.AddUser(user1);
-	db1.AddUser(user2);
-	db1.Update();
 	std::cout << db1.ToString();
-	std::cout << db1.GetJsonString() << "\n";
+	auto user1 = User("id1", "pw1");
+	auto user2 = User("id2", "pw2");
 
-	db1.RemoveUser(user1.GetId());
-	db1.Update();
+	user2.SetName("DIICK");
+	user2.SetDescription("SEXMASTER");
+
+	db1.EditUser(user2.GetId(), user2);
+
+	db1.Sync();
+
 	std::cout << db1.ToString();
-	std::cout << db1.GetJsonString() << "\n";
+
+	//std::cout << "After : \n" << db1.GetJsonString();
 }
