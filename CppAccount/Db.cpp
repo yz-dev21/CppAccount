@@ -105,6 +105,10 @@ std::string DB::ToString() const
 	}
 	return ss.str();
 }
+std::string DB::GetXMLString()
+{
+	return "";
+}
 void DB::Sync()
 {
 	XMLDocument doc;
