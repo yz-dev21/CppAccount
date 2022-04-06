@@ -90,7 +90,7 @@ void DB::RemoveUser(std::string id)
 }
 User DB::GetUser(std::string id) const
 {
-	if (users_.find(id) == users_.end()) return null;
+	if (users_.find(id) == users_.end()) return NULL;
 
 	return users_.at(id);
 }

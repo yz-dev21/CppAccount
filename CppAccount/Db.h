@@ -40,6 +40,7 @@ namespace std
 class DB
 {
 public:
+	DB() { }
 	DB(std::string dbPath);
 
 	// Edit a specific user with id.
