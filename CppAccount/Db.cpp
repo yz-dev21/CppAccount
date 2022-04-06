@@ -90,6 +90,8 @@ void DB::RemoveUser(std::string id)
 }
 User DB::GetUser(std::string id) const
 {
+	if (users_.find(id) == users_.end()) return null;
+
 	return users_.at(id);
 }
 std::unordered_map<std::string, User> DB::GetUsers() const
@@ -107,12 +109,30 @@ std::string DB::ToString() const
 }
 std::string DB::GetXMLString()
 {
-	return "";
+	std::stringstream ss;
+	XMLDocument doc;
+	XMLError error = doc.LoadFile(dbPath_.c_str());
+	if (error)
+	{
+		std::cout << error << std::endl;
+		return;
+	}
+	XMLElement* root = doc.RootElement();
+	XMLElement* firstUser = root->FirstChildElement("User");
+	for (auto* ele = firstUser; ele != NULL; ele = ele->NextSiblingElement())
+	{
+		auto user = User(ele->Attribute("id"), ele->Attribute("password"));
+		user.SetName(ele->Attribute("name"));
+		user.SetDescription(ele->GetText());
+
+		ss << user.ToString() << "\n";
+	}
+	return ss.str();
 }
 void DB::Sync()
 {
 	XMLDocument doc;
-	XMLElement* root = doc.NewElement("Root");
+	XMLElement* root = doc.NewElement("Database");
 	doc.LinkEndChild(root);
 
 	for (const auto& user : users_)

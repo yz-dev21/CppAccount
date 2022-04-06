@@ -5,7 +5,7 @@
 class User
 {
 public:
-	User(std::string id, std::string pw);
+	User(std::string idw, std::string pw);
 	User() { }
 
 	std::string GetId() const;
@@ -13,7 +13,7 @@ public:
 	std::string GetName() const;
 	std::string GetDescription() const;
 
-	void Set(User user);
+	void Set(const User& user);
 	void SetPassword(std::string pw);
 	void SetName(std::string name);
 	void SetDescription(std::string description);
@@ -52,7 +52,6 @@ public:
 	User GetUser(std::string id) const;
 	// Get users map.
 	std::unordered_map<std::string, User> GetUsers() const;
-
 	// Get users as string from DB class.
 	std::string ToString() const;
 	// Get users as json from local database file.
